@@ -104,9 +104,15 @@ class PikaSocket(object):
                                                credentials)
 
         # create connection & channel
-        self.connection = TornadoConnection(parameters)
-        self.channel = self.connection.channel()
+        self.channel = None
+        self.connection = TornadoConnection(parameters,
+                                            on_open_callback=self.on_connected)
+        self.connection.ioloop.start()
 
+    def on_connected(self, connection):
+        """When we are completely connected to rabbitmq this is called"""
+        # Open a channel
+        self.channel = self.connection.channel()
         # create an exchange, if needed
         self.channel.exchange_declare(exchange=exchange,
                                       exchange_type=exchange_type,
@@ -118,9 +124,7 @@ class PikaSocket(object):
         self.routing_key = routing_key
         self.exchange = exchange
 
-
     def sendall(self, data):
-
         self.channel.basic_publish(self.exchange,
                                    self.routing_key,
                                    data,
