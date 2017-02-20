@@ -104,7 +104,7 @@ class PikaSocket(object):
                                                credentials)
         self.channel = None
         self.spec = None
-        self.routing_key = None
+        self.routing_key = routing_key
         self.exchange = exchange
         self.exchange_type = exchange_type
         self.passive = passive
