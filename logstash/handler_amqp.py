@@ -102,9 +102,13 @@ class PikaSocket(object):
         credentials = pika.PlainCredentials(username, password)
         parameters = pika.ConnectionParameters(host, port, virtual_host,
                                                credentials)
-
-        # create connection & channel
         self.channel = None
+        self.spec = None
+        self.routing_key = None
+        self.exchange = exchange
+        self.exchange_type = exchange_type
+        self.passive = passive
+        self.durable = durable
         self.connection = TornadoConnection(parameters,
                                             on_open_callback=self.on_connected)
         self.connection.ioloop.start()
@@ -116,16 +120,13 @@ class PikaSocket(object):
 
     def on_channel_open(self, new_channel):
         # create an exchange, if needed
-        self.channel.exchange_declare(exchange=exchange,
-                                      exchange_type=exchange_type,
-                                      passive=passive,
-                                      durable=durable)
+        self.channel.exchange_declare(exchange=self.exchange,
+                                      exchange_type=self.exchange_type,
+                                      passive=self.passive,
+                                      durable=self.durable)
 
         # needed when publishing
         self.spec = pika.spec.BasicProperties(delivery_mode=2)
-        self.routing_key = routing_key
-        self.exchange = exchange
-
 
     def sendall(self, data):
         self.channel.basic_publish(self.exchange,
