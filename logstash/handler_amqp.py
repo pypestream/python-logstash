@@ -111,7 +111,6 @@ class PikaSocket(object):
         self.durable = durable
         self.connection = TornadoConnection(parameters,
                                             on_open_callback=self.on_connected)
-        self.connection.ioloop.start()
 
     def on_connected(self, connection):
         """When we are completely connected to rabbitmq this is called"""
