@@ -112,7 +112,9 @@ class PikaSocket(object):
     def on_connected(self, connection):
         """When we are completely connected to rabbitmq this is called"""
         # Open a channel
-        self.channel = self.connection.channel()
+        self.channel = self.connection.channel(self.on_channel_open)
+
+    def on_channel_open(self, new_channel):
         # create an exchange, if needed
         self.channel.exchange_declare(exchange=exchange,
                                       exchange_type=exchange_type,
@@ -123,6 +125,7 @@ class PikaSocket(object):
         self.spec = pika.spec.BasicProperties(delivery_mode=2)
         self.routing_key = routing_key
         self.exchange = exchange
+
 
     def sendall(self, data):
         self.channel.basic_publish(self.exchange,
